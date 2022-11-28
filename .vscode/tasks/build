@@ -1,0 +1,5 @@
+~/.cargo/bin/cargo build
+
+# this makes vscode say it exited with an error if trout-backend isnt running but everythings fine
+pkill trout-backend
+echo

@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        // i just think these are cool rust extensions, nothing more
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "serayuzgur.crates"
+    ]
+}

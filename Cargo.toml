@@ -1,0 +1,16 @@
+[workspace]
+members = [
+    "frontend",
+    "backend"
+]
+
+[workspace.package]
+authors = ["TH3-S4LM0N"]
+description = "CLI music player downloading from spotify"
+edition = "2021"
+#homepage = "https://github.com/TH3-S4LM0N/trout/blob/master/README.md"
+license = "MIT"
+license-file = "LICENSE"
+readme = "README.md"
+#documentation = "https://github.com/TH3-S4LM0N/trout/wiki"
+#repository = "https://github.com/TH3-S4LM0N/trout"
