@@ -32,6 +32,10 @@ enum Commands {
         /// Play a playlist
         #[clap(short, long)]
         playlist: bool,
+
+        /// Use regex to search
+        #[clap(short, long)]
+        regex: bool
     },
     /// Generate a directory to store songs and playlists etc.
     Gen {
@@ -71,7 +75,7 @@ enum Commands {
     default_path = "/org/trout/Backend"
 )]
 trait Backend {
-    async fn Play(&self, playlist: bool, to_play: String) -> Result<String>;
+    async fn Play(&self, playlist: bool, regex: bool, to_play: String) -> Result<String>;
     async fn Gen(&self, data_dir: String) -> Result<String>;
     async fn New(&self, playlist: String, site: String, link: String) -> Result<String>;
     #[cfg(debug_assertions)]
@@ -85,9 +89,9 @@ async fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let args = match cli.command {
-        Commands::Play { song, playlist } => {
-            let reply = proxy.Play(playlist, song).await?;
+    match cli.command {
+        Commands::Play { song, playlist, regex } => {
+            let reply = proxy.Play(playlist, regex, song).await?;
             println!("{reply}");
         }
         Commands::Gen { data_dir } => {

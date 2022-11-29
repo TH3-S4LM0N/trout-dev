@@ -6,11 +6,13 @@ CLI Music Player
 
 ### Deps
 Requires: (non-rust deps) <br>
-- <a href="https://github.com/spotDL/spotify-downloader">spotdl</a> <br>
+- <a href="https://github.com/spotDL/spotify-downloader">spotdl</a> i am consider rewriting this in rust as a lib so it can be part of trout-backend <br>
 
 ## TODO
 Consider just using unix sockets or something simpler than dbus
+Make sure systemd service isnt run as root somehow
 - Backend
+    - Remove all prints and make a logger
     - load
         - figure out how to make rust realize that `cfg_path` will never be an `Option<PathBuf>`
     - commands

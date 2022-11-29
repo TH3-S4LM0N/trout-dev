@@ -1,15 +1,17 @@
 use {
-    crate::core::structs::{database, Config},
+    //crate::{core::structs::{database, Config}},
+    crate::{
+        core as ccore,
+    },
     serde_json::{json, Value},
     std::path::PathBuf,
     tokio::{fs as tfs, process::Command as tCommand},
 };
 
 pub async fn new_song(link: &str) -> String {
-    let (cfg, dbase): (Config, database) = crate::core::load().await;
+    let cfg = ccore::load_cfg().await;
 
     // &cfg.data_dir as a srting
-    
     let data_dir_string = format!("{}", &cfg.data_dir.display());
     // path to tmpfile
     let tmpfile = format!("{}/tmp.spotdl", &data_dir_string);

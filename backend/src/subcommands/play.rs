@@ -1,23 +1,37 @@
+use crate::ccore::logger::log;
+
 use {
-    crate::core::{structs::{database, Config, Song}, audio_file::lengthof_flac},
-    rodio::{source::Source, Decoder, OutputStream},
-    rand::{thread_rng, Rng},
-    std::{
-        fs::File,
-        io::BufReader,
-        thread::sleep
+    crate::{
+        core as ccore,
+        core::{
+            audio_file::lengthof_flac,
+            structs::{database, Config, Song},
+        },
     },
-    tokio::{fs as tfs},
+    rand::{thread_rng, Rng},
+    rodio::{source::Source, Decoder, OutputStream},
+    std::{fs::File, io::BufReader, thread::sleep},
+    tokio::fs as tfs,
+    regex::Regex
 };
 
-pub async fn pre_play(to_play: String) -> String {
-    let (cfg, database): (Config, database) = crate::core::load().await;    
-
+pub async fn pre_play(to_play: String, playlist: bool, regex: bool, cfg: &Config) -> String {
+    let dbase = ccore::load_dbase().await;
+    // check if were playing a playlist an redirect
+    if playlist {
+        play_playlist(&to_play, cfg, &dbase, regex).await
+    } else {
+        play_song(&to_play, cfg, &dbase, regex).await
+    }
+    String::new()
+}
+/*
     let mut is_match: bool = false;
     let mut play: Vec<String> = vec![String::new(), String::new()];
-    
+
+
     // check if search term matches any songs
-    for item in &database.songs {
+    for item in &dbase.songs {
         if item.name.contains(&to_play) {
             is_match = true;
             play[0] = item.id.to_string();
@@ -43,27 +57,58 @@ pub async fn pre_play(to_play: String) -> String {
     .expect("Failed to read into JSON!");
 
     // init play of passed song
-    crate::subcommands::play::play(song_to_play).await;
+    crate::subcommands::play::play_song(song_to_play, cfg).await;
 
 
     loop {
-        let next_dbase = &database.songs[thread_rng().gen_range(
-            0..*&database.songs.len() as i32
+        let next_dbase = &dbase.songs[thread_rng().gen_range(
+            0..*&dbase.songs.len() as i32
         ) as usize];
         let next: Song = serde_json::from_str(
             &tfs::read_to_string(&format!(
                 "{}/songs/{}.json", &cfg.data_dir.display(), &next_dbase.id
             )).await.expect("Failed to read song.json")
         ).expect("Failed to read into JSON!");
-        crate::subcommands::play::play(next).await;
+        self::play_song(next, cfg).await;
     }
 }
+*/
+async fn play_song(to_play: &str, cfg: &Config, dbase: &database, regex: bool) {
+    // check if search term matches any songs
+    let mut is_match: bool = false;
+    let mut play: Vec<&str> = vec!["", ""];
+    if regex {
+        let re = Regex::new(to_play).unwrap();
+        for item in &dbase.songs {
+            if re.is_match(&item.name) {
+                is_match = true;
+                play[0] = &item.id;
+                play[1] = &item.name;
+                break;
+            }
+        }
+        if !is_match {
+            log("Error: Search did not match any song! Consider using regex (--regex)", cfg).await;
+        }
+    } else {
+        for item in &dbase.songs {
+            if item.name.contains(&to_play) {
+                is_match = true;
+                play[0] = &item.id;
+                play[1] = &item.name;
+                break;
+            }
+        }
+    }
+    
 
-async fn play(to_play: Song) {
+    /*
     let (_, stream_handle) = OutputStream::try_default().expect("Failed to get default audio I/O stream!");
     let file = BufReader::new(File::open(&to_play.Path).expect("Failed to open FLAC!"));
     let source = Decoder::new(file).expect("Failed to create decoder!");
     stream_handle.play_raw(source.convert_samples()).expect("Failed to play stream!");
     // wait for length of file while seperate thread plays
-    sleep(lengthof_flac(&to_play.Path).await);
+    sleep(lengthof_flac(&to_play.Path, cfg).await); */
 }
+
+async fn play_playlist(to_play: &str, cfg: &Config, dbase: &database, regex: bool) {}
