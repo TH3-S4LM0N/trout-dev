@@ -1,3 +1,6 @@
+# trout-dev
+A gh repo for trout. It will get a new dedi repo on 1st release.
+
 # trout
 CLI Music Player
 
