@@ -9,6 +9,7 @@ Requires: (non-rust deps) <br>
 - <a href="https://github.com/spotDL/spotify-downloader">spotdl</a> <br>
 
 ## TODO
+Consider just using unix sockets or something simpler than dbus
 - Backend
     - load
         - figure out how to make rust realize that `cfg_path` will never be an `Option<PathBuf>`
