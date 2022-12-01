@@ -13,6 +13,7 @@ Consider just using unix sockets or something simpler than dbus
 Make sure systemd service isnt run as root somehow
 - Backend
     - Remove all prints and make a logger
+    - trim the passing of `cfg` so that only whats actually needed is passed
     - load
         - figure out how to make rust realize that `cfg_path` will never be an `Option<PathBuf>`
     - commands
@@ -21,5 +22,3 @@ Make sure systemd service isnt run as root somehow
         - new
             - rework to allow easy addition of new downloaders/sites
                 - spotify.rs is messy
-        - play
-            - use regex

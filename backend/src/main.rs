@@ -22,7 +22,7 @@ impl Backend {
         self.count += 1;
         let cfg = ccore::load_cfg().await;
 
-        subcommands::play::pre_play(to_play, playlist, regex, &cfg).await;
+        subcommands::play::pre_play(to_play, playlist, regex, &cfg.data_dir).await;
         String::new()
     }
     async fn Gen(&mut self, data_dir: String) -> String {
@@ -31,7 +31,8 @@ impl Backend {
     }
     async fn New(&mut self, playlist: String, site: String, link: String) -> String {
         self.count += 1;
-        subcommands::new::new(playlist, site, link).await
+        let cfg = ccore::load_cfg().await;
+        subcommands::new::new(playlist, site, link, &cfg.data_dir).await
     }
     
     #[cfg(debug_assertions)]

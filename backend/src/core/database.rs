@@ -1,5 +1,5 @@
 use {
-    crate::core::structs::{database, dbasesong},
+    crate::core::{structs::{database, dbasesong}, logger::ResultExt},
     serde_json::{json, Value},
     std::path::PathBuf,
     tokio::fs as tfs,
@@ -14,9 +14,9 @@ pub async fn add(id: &Value, name: &Value, data_dir: &PathBuf) {
     let mut databasest: database = serde_json::from_str(
         &tfs::read_to_string(&dbasepath)
             .await
-            .expect("Failed to read database!"),
+            .log("Failed to read database!", data_dir),
     )
-    .expect("Failed to convert database to JSON!");
+    .log("Failed to convert database to JSON!", data_dir);
 
     // add new song
     databasest.songs.push(dbasesong {
@@ -27,5 +27,5 @@ pub async fn add(id: &Value, name: &Value, data_dir: &PathBuf) {
     // write back to database.json
     tfs::write(&dbasepath, json!(&databasest).to_string())
         .await
-        .expect("Failed to write database!");
+        .log("Failed to write database!", data_dir);
 }

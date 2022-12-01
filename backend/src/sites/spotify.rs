@@ -2,13 +2,14 @@ use {
     //crate::{core::structs::{database, Config}},
     crate::{
         core as ccore,
+        core::{ResultExt, database},
     },
     serde_json::{json, Value},
     std::path::PathBuf,
     tokio::{fs as tfs, process::Command as tCommand},
 };
 
-pub async fn new_song(link: &str) -> String {
+pub async fn new_song(link: &str, data_dir: &PathBuf) -> String {
     let cfg = ccore::load_cfg().await;
 
     // &cfg.data_dir as a srting
@@ -31,16 +32,16 @@ pub async fn new_song(link: &str) -> String {
             "--preload",
         ])
         .spawn()
-        .expect("Failed to create download command!");
-    cmd.wait().await.expect("Failed to run download command!");
+        .log("Failed to create download command!", &cfg.data_dir);
+    cmd.wait().await.log("Failed to run download command!", &cfg.data_dir);
 
     // contents of the savefile spotdl makes, containing json song values
     let song_json: Vec<Value> = serde_json::from_str(
         &tfs::read_to_string(&tmpfile)
             .await
-            .expect("Failed to create read tmpfile!"),
+            .log("Failed to create read tmpfile!", &cfg.data_dir),
     )
-    .expect("Failed to read tmpfile into JSON!");
+    .log("Failed to read tmpfile into JSON!", &cfg.data_dir);
 
     // json data that will be written to data_dir/songs/id.json
     let new_song_json = json!({
@@ -62,20 +63,20 @@ pub async fn new_song(link: &str) -> String {
 
     tfs::File::create(&song_json_path)
         .await
-        .expect("Failed to create song file!");
+        .log("Failed to create song file!", data_dir);
 
     tfs::write(
         &song_json_path,
         serde_json::to_string_pretty(&new_song_json).unwrap(),
     )
     .await
-    .expect("Failed to write json file!");
+    .log("Failed to write json file!", &cfg.data_dir);
 
     tfs::remove_file(&tmpfile)
         .await
-        .expect("Failed to remove temp file!");
+        .log("Failed to remove temp file!", &cfg.data_dir);
 
-    crate::core::database::add(
+    database::add(
         &song_json[0]["song_id"],
         &song_json[0]["name"],
         &cfg.data_dir,
@@ -85,7 +86,7 @@ pub async fn new_song(link: &str) -> String {
     format!(
         "Created {} at {}!",
         song_json[0]["name"],
-        &song_json_path.into_os_string().into_string().expect("bruh")
+        &song_json_path.into_os_string().into_string().expect("Strip result")
     )
 }
 

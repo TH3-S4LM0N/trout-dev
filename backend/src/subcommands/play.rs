@@ -1,27 +1,24 @@
-use crate::ccore::logger::log;
-
 use {
     crate::{
         core as ccore,
         core::{
-            audio_file::lengthof_flac,
-            structs::{database, Config, Song},
+            structs::{database, Config},
+            logger::log
         },
     },
-    rand::{thread_rng, Rng},
     rodio::{source::Source, Decoder, OutputStream},
-    std::{fs::File, io::BufReader, thread::sleep},
+    std::{fs::File, io::BufReader, thread::sleep, path::PathBuf},
     tokio::fs as tfs,
     regex::Regex
 };
 
-pub async fn pre_play(to_play: String, playlist: bool, regex: bool, cfg: &Config) -> String {
-    let dbase = ccore::load_dbase().await;
+pub async fn pre_play(to_play: String, playlist: bool, regex: bool, data_dir: &PathBuf) -> String {
+    let dbase = ccore::load_dbase(data_dir).await;
     // check if were playing a playlist an redirect
     if playlist {
-        play_playlist(&to_play, cfg, &dbase, regex).await
+        play_playlist(&to_play, data_dir, &dbase, regex).await
     } else {
-        play_song(&to_play, cfg, &dbase, regex).await
+        play_song(&to_play, data_dir, &dbase, regex).await
     }
     String::new()
 }
@@ -73,7 +70,7 @@ pub async fn pre_play(to_play: String, playlist: bool, regex: bool, cfg: &Config
     }
 }
 */
-async fn play_song(to_play: &str, cfg: &Config, dbase: &database, regex: bool) {
+async fn play_song(to_play: &str, data_dir: &PathBuf, dbase: &database, regex: bool) {
     // check if search term matches any songs
     let mut is_match: bool = false;
     let mut play: Vec<&str> = vec!["", ""];
@@ -88,7 +85,7 @@ async fn play_song(to_play: &str, cfg: &Config, dbase: &database, regex: bool) {
             }
         }
         if !is_match {
-            log("Error: Search did not match any song! Consider using regex (--regex)", cfg).await;
+            log("Error: Search did not match any song! Consider using regex (--regex)", data_dir).await;
         }
     } else {
         for item in &dbase.songs {
@@ -111,4 +108,4 @@ async fn play_song(to_play: &str, cfg: &Config, dbase: &database, regex: bool) {
     sleep(lengthof_flac(&to_play.Path, cfg).await); */
 }
 
-async fn play_playlist(to_play: &str, cfg: &Config, dbase: &database, regex: bool) {}
+async fn play_playlist(to_play: &str, data_dir: &PathBuf, dbase: &database, regex: bool) {}

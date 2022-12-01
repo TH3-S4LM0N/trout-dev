@@ -1644,7 +1644,6 @@ dependencies = [
  "chrono",
  "futures",
  "metaflac",
- "rand",
  "regex",
  "rodio",
  "serde",

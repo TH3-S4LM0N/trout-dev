@@ -1,9 +1,9 @@
 pub use {
     crate::core::{
-        logger as clogger, // shut up its a 'logger' from the 'core' mod
+        logger::ResultExt,
         structs::{database as sDatabase, Config as sConfig},
     },
-    std::fmt,
+    std::{fmt, path::PathBuf},
     tokio::fs as tfs,
 };
 
@@ -28,14 +28,13 @@ pub async fn load_cfg() -> sConfig {
 }
 
 
-pub async fn load_dbase() -> sDatabase {
-    let cfg = load_cfg().await;
+pub async fn load_dbase(data_dir: &PathBuf) -> sDatabase {
     let database: sDatabase = serde_json::from_str(
-        &tfs::read_to_string(&format!("{}/database.json", cfg.data_dir.display()))
+        &tfs::read_to_string(&format!("{}/database.json", data_dir.display()))
             .await
-            .expect("Failed to read databasee.json"),
+            .log("Failed to read databasee.json", data_dir),
     )
-    .expect("Failed to convert database.json to JSON!");
+    .log("Failed to convert database.json to JSON!", data_dir);
     return database;
 }
 
@@ -44,33 +43,3 @@ pub async fn dbg(test_b: bool) {
     dbg!(test_b);
 }
 
-// trait to add a log method to replace `.expect` for Result<T, E>
-pub trait ResultExt<T, E> {
-    fn log(self, msg: &str, cfg: &sConfig) -> T
-    where
-        E: fmt::Debug;
-}
-impl<T, E> ResultExt<T, E> for Result<T, E> {
-    fn log(self, msg: &str, cfg: &sConfig) -> T
-    where
-        E: fmt::Debug,
-    {
-        match self {
-            Ok(t) => t,
-            Err(e) => clogger::log_result(msg, &e, cfg),
-        }
-    }
-}
-
-// trait to add log method to replace `.expect` for Option<T>
-pub trait OptionExt<T> {
-    fn log(self, msg: &str, cfg: &sConfig) -> T;
-}
-impl<T> OptionExt<T> for Option<T> {
-    fn log(self, msg: &str, cfg: &sConfig) -> T {
-        match self {
-            Some(val) => val,
-            None => clogger::log_opt(msg, cfg)
-        }
-    }
-}
