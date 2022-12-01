@@ -1,0 +1,13 @@
+{
+	"settings": {
+		"search.exclude": {
+			"**/target/**/*": true,
+			"**/Cargo.lock": true
+		}
+	},
+	"folders": [
+		{
+			"path": "."
+		}
+	]
+}
