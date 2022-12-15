@@ -1,16 +1,11 @@
-[workspace]
-members = [
-    "frontend",
-    "backend"
-]
-
-[workspace.package]
-authors = ["TH3-S4LM0N"]
-description = "CLI music player downloading from spotify"
+[package]
+name = "trout"
+version = "0.1.0"
 edition = "2021"
-#homepage = "https://github.com/TH3-S4LM0N/trout/blob/master/README.md"
-license = "MIT"
-license-file = "LICENSE"
-readme = "README.md"
-#documentation = "https://github.com/TH3-S4LM0N/trout/wiki"
-#repository = "https://github.com/TH3-S4LM0N/trout"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rspotify = "0.11.6"
+egui = "0.20.1"
+clap = {version = "4.0.29", features = ["derive"]}
